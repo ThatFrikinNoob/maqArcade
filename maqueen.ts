@@ -50,33 +50,6 @@ namespace maqueen {
         PatrolRight = 14
     }
 
-    export enum LED {
-        //% blockId="LEDLeft" block="LEDLeft"
-        LEDLeft = 8,
-        //% blockId="LEDRight" block="LEDRight"
-        LEDRight = 12
-    }
-
-    export enum LEDswitch {
-        //% blockId="turnOn" block="turnOn"
-        turnOn = 0x01,
-        //% blockId="turnOff" block="turnOff"
-        turnOff = 0x00
-    }
-
-    //% advanced=true shim=maqueenIR::initIR
-    function initIR(pin: Pins): void {
-        return
-    }
-    //% advanced=true shim=maqueenIR::onPressEvent
-    function onPressEvent(btn: RemoteButton, body: Action): void {
-        return
-    }
-    //% advanced=true shim=maqueenIR::getParam
-    function getParam(): number {
-        return 0
-    }
-
     function maqueenInit(): void {
         if (alreadyInit == 1) {
             return
@@ -84,52 +57,6 @@ namespace maqueen {
         initIR(Pins.P16)
         alreadyInit = 1
     }
-
-
-
-    //% weight=100
-    //% blockGap=50
-    //% blockId=IR_callbackUser block="on IR received"
-    export function IR_callbackUser(maqueencb: (message: number) => void) {
-        maqueenInit();
-        IR_callback(() => {
-            const packet = new Packeta();
-            packet.mye = maqueene;
-            maqueenparam = getParam();
-            packet.myparam = maqueenparam;
-            maqueencb(packet.myparam);
-        });
-    }
-
-    //% weight=10
-    //% blockId=IR_read block="read IR"
-    export function IR_read(): number {
-        maqueenInit()
-        return getParam()
-    }
-
-    //% weight=10
-    //% blockId=IR_read_version block="Get product information"
-    export function IR_read_version(): string {
-        maqueenInit()
-        pins.i2cWriteNumber(0x10, 50, NumberFormat.UInt8BE);
-        let dataLen = pins.i2cReadNumber(0x10, NumberFormat.UInt8BE);
-        pins.i2cWriteNumber(0x10, 51, NumberFormat.UInt8BE);
-        let buf = pins.i2cReadBuffer(0x10, dataLen, false);
-        let version = "";
-        for (let index = 0; index < dataLen; index++) {
-            version += String.fromCharCode(buf[index])
-        }
-        return version
-    }
-    
-    function IR_callback(a: Action): void {
-        maqueencb = a
-        IrPressEvent += 1
-        onPressEvent(IrPressEvent, maqueencb)
-    }
-
-    //Sensor func
 
     //% weight=90
     //% blockId=motor_MotorRun block="Motor|%index|dir|%Dir|speed|%speed"
@@ -178,19 +105,6 @@ namespace maqueen {
     }
 
     //% weight=20
-    //% blockId=read_Patrol block="Read Patrol|%patrol"
-    //% patrol.fieldEditor="gridpicker" patrol.fieldOptions.columns=2 
-    export function readPatrol(patrol: Patrol): number {
-        if (patrol == Patrol.PatrolLeft) {
-            return pins.digitalReadPin(DigitalPin.P13)
-        } else if (patrol == Patrol.PatrolRight) {
-            return pins.digitalReadPin(DigitalPin.P14)
-        } else {
-            return -1
-        }
-    }
-
-    //% weight=20
     //% blockId=writeLED block="led|%led|ledswitch|%ledswitch"
     //% led.fieldEditor="gridpicker" led.fieldOptions.columns=2 
     //% ledswitch.fieldEditor="gridpicker" ledswitch.fieldOptions.columns=2
@@ -203,21 +117,4 @@ namespace maqueen {
             return
         }
     }
-
-    //% weight=90
-    //% blockId=servo_ServoRun block="Servo|%index|angle|%angle"
-    //% angle.min=0 angle.max=180
-    //% index.fieldEditor="gridpicker" index.fieldOptions.columns=2
-    export function ServoRun(index: aServos, angle: number): void {
-        let buf = pins.createBuffer(2);
-        if (index == 0) {
-            buf[0] = 0x14;
-        }
-        if (index == 1) {
-            buf[0] = 0x15;
-        }
-        buf[1] = angle;
-        pins.i2cWriteBuffer(0x10, buf);
-    }
-
 }
