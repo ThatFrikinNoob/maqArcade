@@ -49,6 +49,13 @@ namespace maqueen {
         //% blockId="PatrolRight" block="PatrolRight"
         PatrolRight = 14
     }
+    
+     export enum LED {
+        //% blockId="LEDLeft" block="LEDLeft"
+        LEDLeft = 8,
+        //% blockId="LEDRight" block="LEDRight"
+        LEDRight = 12
+    }
 
     function maqueenInit(): void {
         if (alreadyInit == 1) {
